@@ -32,13 +32,13 @@ public class PedidoEntity {
     private BigDecimal total;
 
     @Column(name = "fecha")
-    private String fecha;
+    private LocalDateTime fecha;
 
     @Column(nullable = false)
     private Boolean estado;
 
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", nullable = false , updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp

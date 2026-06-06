@@ -3,6 +3,7 @@ package com.example.bakend_vape.usuario.infrastructure.persistence.entity;
 import com.example.bakend_vape.direccion.infrastructure.persistence.entity.DireccionEntity;
 import com.example.bakend_vape.rol.infrastructure.persistence.entity.RolEntity;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,6 +18,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+
 public class UsuarioEntity {
 
     @Id
@@ -55,10 +57,12 @@ public class UsuarioEntity {
     private RolEntity rol;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false , updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+
 }

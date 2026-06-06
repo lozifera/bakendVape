@@ -2,18 +2,20 @@ package com.example.bakend_vape.marca.domain.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Getter
 @AllArgsConstructor
 @Setter
+@NoArgsConstructor
 public class Marca {
 
     private Long id_marca;
     private String nombre;
-    private LocalDate created_at;
-    private LocalDate updated_at;
+    private LocalDateTime created_at;
+    private LocalDateTime updated_at;
 
 }

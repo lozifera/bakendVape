@@ -1,6 +1,10 @@
 package com.example.bakend_vape.categoria.infrastructure.persistence.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -9,6 +13,10 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "categoria")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class CategoriaEntity {
 
     @Id
@@ -20,7 +28,7 @@ public class CategoriaEntity {
     private String nombre;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false , updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp

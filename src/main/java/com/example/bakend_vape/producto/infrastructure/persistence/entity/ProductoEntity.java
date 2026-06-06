@@ -4,6 +4,7 @@ package com.example.bakend_vape.producto.infrastructure.persistence.entity;
 import com.example.bakend_vape.categoria.infrastructure.persistence.entity.CategoriaEntity;
 import com.example.bakend_vape.marca.infrastructure.persistence.entity.MarcaEntity;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,9 +26,16 @@ public class ProductoEntity {
     @Column(name = "id_producto")
     private Long idProducto;
 
+    @Column(name = "nombre", nullable = false)
     private String nombre;
+
+    @Column(name = "descripcion")
     private String descripcion;
+
+    @Column(name = "precio", nullable = false)
     private BigDecimal precio;
+
+    @Column(name = "stock", nullable = false)
     private int stock;
 
     @Column(name = "stock_minimo")
@@ -42,7 +50,7 @@ public class ProductoEntity {
     private MarcaEntity marca;
 
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", nullable = false , updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp

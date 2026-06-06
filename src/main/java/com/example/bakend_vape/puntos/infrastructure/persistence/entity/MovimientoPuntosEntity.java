@@ -1,6 +1,6 @@
 package com.example.bakend_vape.puntos.infrastructure.persistence.entity;
 
-import com.example.bakend_vape.puntos.domain.model.MotivoMovimento;
+import com.example.bakend_vape.puntos.domain.model.MotivoMovimiento;
 import com.example.bakend_vape.usuario.infrastructure.persistence.entity.UsuarioEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -32,13 +32,13 @@ public class MovimientoPuntosEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
-    private MotivoMovimento motivo;
+    private MotivoMovimiento motivo;
 
     @Column(name = "referencia_id")
     private Long referenciaId;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false , updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp

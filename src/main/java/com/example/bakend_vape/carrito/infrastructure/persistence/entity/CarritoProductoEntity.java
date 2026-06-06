@@ -37,11 +37,11 @@ public class CarritoProductoEntity {
     @Column(name = "precio_venta", nullable = false,precision = 10, scale = 2)
     private BigDecimal precioVenta;
 
-    @Column(name = "subtotal", nullable = false)
+    @Column(name = "subtotal", nullable = false,precision = 10, scale = 2)
     private BigDecimal subtotal;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp

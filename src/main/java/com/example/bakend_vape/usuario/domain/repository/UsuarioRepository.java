@@ -17,6 +17,10 @@ public interface UsuarioRepository {
 
     List<Usuario> findAll();
 
+    List<Usuario> findByEsVip(Boolean esVip);
+
+    Long countByRolIdRol(Long rolId);
+
     void delete(Long id);
 
 }

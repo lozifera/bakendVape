@@ -16,7 +16,7 @@ public class MovimientoPuntos {
     private Long idMovimientoPuntos;
     private Usuario usuario;
     private Puntos puntos;
-    private MovimientoPuntos motivo;
+    private MotivoMovimiento motivo;
     private Long referenciaId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

@@ -1,16 +1,16 @@
 package com.example.bakend_vape.auditoria.domain.repository;
 
-import com.example.bakend_vape.auditoria.domain.model.Audotoria;
+import com.example.bakend_vape.auditoria.domain.model.Auditoria;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface AuditoriaRepository {
 
-    Audotoria save(Audotoria auditoria);
+    Auditoria save(Auditoria auditoria);
 
-    Optional<Audotoria> findById(Long id);
+    Optional<Auditoria> findById(Long id);
 
-    List<Audotoria> findAll();
+    List<Auditoria> findAll();
 
 }

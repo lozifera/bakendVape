@@ -14,7 +14,7 @@ public class Direccion {
     private Long id_direccion;
     private String direccion;
     private String referencia;
-    private  String principal;
+    private  Boolean principal;
     private Usuario usuario;
     private LocalDateTime created_at;
     private LocalDateTime updated_at;

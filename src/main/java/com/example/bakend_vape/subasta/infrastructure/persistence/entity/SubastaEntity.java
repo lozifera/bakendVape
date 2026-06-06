@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "subastas")
@@ -42,10 +43,10 @@ public class SubastaEntity {
     private EstadoSubasta estado;
 
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
-    private String createdAt;
+    @Column(name = "created_at", nullable = false , updatable = false)
+    private LocalDateTime createdAt;
 
     @UpdateTimestamp
     @Column(name = "updated_at")
-    private String updatedAt;
+    private LocalDateTime updatedAt;
 }

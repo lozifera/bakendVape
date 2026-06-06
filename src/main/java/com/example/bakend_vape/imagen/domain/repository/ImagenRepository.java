@@ -8,7 +8,7 @@ import java.util.Optional;
 
 public interface ImagenRepository {
 
-    Imagen seve(Imagen imagen);
+    Imagen save(Imagen imagen);
 
     Optional<Imagen> findById(Long id);
 

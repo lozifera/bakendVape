@@ -12,15 +12,15 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "producto_pedido")
+@Table(name = "pedido_producto")
 @Getter
 @Setter
 @NoArgsConstructor
-public class ProductoPedidoEntity {
+public class PedidoProductoEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idProductoPedido;
+    private Long idPedidoProducto;
 
     @ManyToOne
     @JoinColumn(name = "pedido_id", nullable = false)
@@ -36,8 +36,11 @@ public class ProductoPedidoEntity {
     @Column(name = "precio_unitario", nullable = false,precision = 10, scale = 2)
     private BigDecimal precioUnitario;
 
+    @Column(name = "subtotal", nullable = false,precision = 10, scale = 2)
+    private BigDecimal subtotal;
+
     @CreationTimestamp
-    @Column(name = "created_at", nullable = false)
+    @Column(name = "created_at", nullable = false , updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp

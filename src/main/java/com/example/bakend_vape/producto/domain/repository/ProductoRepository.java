@@ -15,6 +15,12 @@ public interface ProductoRepository {
 
     List<Producto> findByCategoriaId(Long categoriaId);
 
+    Optional<Producto> findByNombre(String nombre);
+
+    List<Producto> findByMarcaId(Long marcaId);
+
+    Boolean existsByNombre(String nombre);
+
     void delete(Long id);
 
 }

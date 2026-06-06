@@ -18,7 +18,7 @@ public class Valoracion {
     private Producto producto;
     private Integer puntuacion;
     private String comentario;
-    private LocalDateTime cratedAt;
+    private LocalDateTime createdAt;
     private  LocalDateTime updatedAt;
 
 }

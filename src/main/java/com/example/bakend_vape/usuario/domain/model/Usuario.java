@@ -30,7 +30,6 @@ public class Usuario {
         this.email = email;
         this.password = password;
         this.rol = rol;
-
         this.es_vip = false;
         this.puntos_actuales = 0;
         this.created_at = LocalDateTime.now();

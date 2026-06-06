@@ -3,6 +3,7 @@ package com.example.bakend_vape.auditoria.domain.model;
 import com.example.bakend_vape.usuario.domain.model.Usuario;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -10,7 +11,8 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @AllArgsConstructor
-public class Audotoria {
+@NoArgsConstructor
+public class Auditoria {
 
     private Long idAuditoria;
     public Usuario usuario;

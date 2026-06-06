@@ -9,4 +9,6 @@ public interface JpaImagenCategoriaRepository extends JpaRepository<ImagenCatego
 
     List<ImagenCategoriaEntity> findByCategoriaIdCategoria(Long idCategoria);
 
+    List<ImagenCategoriaEntity> findByImagenIdImagen(Long idImagen);
+
 }

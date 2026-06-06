@@ -6,15 +6,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @AllArgsConstructor
-public class ProductoPedido {
+public class PedidoProducto {
 
-    private Long idProductoPedido;
+    private Long idPedidoProducto;
     private Pedido pedido;
     private Producto producto;
     private Integer cantidad;

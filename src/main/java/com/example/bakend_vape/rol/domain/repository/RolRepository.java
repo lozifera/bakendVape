@@ -15,4 +15,6 @@ public interface RolRepository {
 
     List<Rol> findAll();
 
+    boolean existsByNombre(String nombre);
+
 }

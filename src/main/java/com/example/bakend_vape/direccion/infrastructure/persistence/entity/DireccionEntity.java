@@ -2,6 +2,7 @@ package com.example.bakend_vape.direccion.infrastructure.persistence.entity;
 
 import com.example.bakend_vape.usuario.infrastructure.persistence.entity.UsuarioEntity;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -28,6 +29,7 @@ public class DireccionEntity {
     @Column(length = 255)
     private String referencia;
 
+    @Column(name = "principal", nullable = false)
     private Boolean principal;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -35,7 +37,7 @@ public class DireccionEntity {
     private UsuarioEntity usuario;
 
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", nullable = false , updatable = false)
     private LocalDateTime createdAt;
 
     @UpdateTimestamp

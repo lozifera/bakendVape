@@ -9,4 +9,10 @@ public interface JpaCarritoProductoRepository extends JpaRepository<CarritoProdu
 
     List<CarritoProductoEntity> findByCarritoIdCarrito(Long idCarrito);
 
+    List<CarritoProductoEntity> findByProductoIdProducto(Long idProducto);
+
+    void deleteAllByCarritoIdCarrito(Long idCarrito);
+
+    boolean existsByCarritoIdCarritoAndProductoIdProducto(Long idCarrito, Long idProducto);
+
 }
