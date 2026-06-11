@@ -11,7 +11,7 @@ public interface DireccionRepository {
 
     Optional<Direccion> findById(Long id);
 
-    List<Direccion> findIdUsarioId(Long idUsuario);
+    List<Direccion> findByUsuario(Long idUsuario);
 
     void delete(Long id);
 

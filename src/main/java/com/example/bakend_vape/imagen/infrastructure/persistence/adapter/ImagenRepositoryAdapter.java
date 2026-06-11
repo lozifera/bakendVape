@@ -36,6 +36,11 @@ public class ImagenRepositoryAdapter implements ImagenRepository {
     }
 
     @Override
+    public Optional<Imagen> findByUrl(String url) {
+        return jpa.findByUrl(url).map(mapper :: toDomain);
+    }
+
+    @Override
     public List<Imagen> findAll() {
         return jpa.findAll().stream().map(mapper :: toDomain).toList();
     }

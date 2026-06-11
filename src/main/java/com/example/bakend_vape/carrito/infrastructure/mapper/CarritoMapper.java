@@ -10,35 +10,25 @@ public class CarritoMapper {
 
     private final UsuarioMapper usuarioMapper = new UsuarioMapper();
 
-
-
-    public Carrito toDomain(CarritoEntity entity){
-        if (entity == null) {
-            return null;
-        }
+    public Carrito toDomain(CarritoEntity entity) {
+        if (entity == null) return null;
         return new Carrito(
-
                 entity.getIdCarrito(),
-                usuarioMapper.toDomain(entity.getUsuario()),
+                entity.getUsuario() != null ? usuarioMapper.toDomain(entity.getUsuario()) : null,
+                entity.getSessionId(),
                 entity.getActivo(),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt()
-
-
         );
-
     }
 
-    public CarritoEntity toEntity(Carrito carrito){
-        if (carrito == null) {
-            return null;
-        }
+    public CarritoEntity toEntity(Carrito carrito) {
+        if (carrito == null) return null;
         CarritoEntity entity = new CarritoEntity();
         entity.setIdCarrito(carrito.getIdCarrito());
-        entity.setUsuario(usuarioMapper.toEntity(carrito.getUsuario()));
+        entity.setUsuario(carrito.getUsuario() != null ? usuarioMapper.toEntity(carrito.getUsuario()) : null);
+        entity.setSessionId(carrito.getSessionId());
         entity.setActivo(carrito.getActivo());
-
         return entity;
     }
-
 }

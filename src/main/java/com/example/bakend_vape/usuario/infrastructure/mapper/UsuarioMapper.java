@@ -17,7 +17,7 @@ public class UsuarioMapper {
         return new Usuario(
                 entity.getIdUsuario(),
                 entity.getNombre(),
-                entity.getApellidos(),
+                entity.getApellido(),
                 entity.getEmail() != null ? new Email(entity.getEmail()) : null,
                 entity.getPassword() != null ? new Password(entity.getPassword()) : null,
                 entity.getEsVip(),
@@ -31,14 +31,14 @@ public class UsuarioMapper {
     public UsuarioEntity toEntity(Usuario usuario){
         if (usuario == null) return null;
         UsuarioEntity entity = new UsuarioEntity();
-        if (usuario.getId_usuario() != null) {
-            entity.setIdUsuario(usuario.getId_usuario());
+        if (usuario.getIdUsuario() != null) {
+            entity.setIdUsuario(usuario.getIdUsuario());
         }
         entity.setNombre(usuario.getNombre());
-        entity.setApellidos(usuario.getApellido());
+        entity.setApellido(usuario.getApellido());
         entity.setEmail(usuario.getEmail() != null ? usuario.getEmail().getValue() : null);
         entity.setPassword(usuario.getPassword() != null ? usuario.getPassword().getValue() : null);
-        entity.setEsVip(usuario.getEs_vip());
+        entity.setEsVip(usuario.getEsVip());
         entity.setPuntosActuales(usuario.getPuntos_actuales());
         entity.setRol(usuario.getRol() != null ? rolMapper.toEntity(usuario.getRol()) : null);
 

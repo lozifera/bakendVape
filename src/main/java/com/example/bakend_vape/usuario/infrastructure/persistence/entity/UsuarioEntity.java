@@ -30,7 +30,7 @@ public class UsuarioEntity {
     private String nombre;
 
     @Column(length = 255)
-    private String apellidos;
+    private String apellido;
 
     @Column(length = 255)
     private String email;
@@ -52,7 +52,7 @@ public class UsuarioEntity {
     )
     private List<DireccionEntity> direcciones;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_rol")
     private RolEntity rol;
 

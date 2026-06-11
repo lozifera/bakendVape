@@ -5,9 +5,11 @@ import com.example.bakend_vape.puntos.domain.repository.MovimientoPuntosReposito
 import com.example.bakend_vape.puntos.infrastructure.mapper.MovimientoPuntosMapper;
 import com.example.bakend_vape.puntos.infrastructure.persistence.entity.MovimientoPuntosEntity;
 import com.example.bakend_vape.puntos.infrastructure.persistence.jpa.JpaMovimientoPuntosRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+@Repository
 public class MovimientoPuntosRepositoryAdapter implements MovimientoPuntosRepository {
 
     private final JpaMovimientoPuntosRepository jpa;

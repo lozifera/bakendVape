@@ -4,6 +4,10 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### Uploads (imágenes locales) ###
+uploads/
+!uploads/.gitkeep
+
 ### STS ###
 .apt_generated
 .classpath

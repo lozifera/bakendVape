@@ -9,4 +9,5 @@ public interface JpaCarritoRepository extends JpaRepository<CarritoEntity, Long>
 
     Optional<CarritoEntity> findByUsuarioIdUsuario(Long idUsuario);
 
+    Optional<CarritoEntity> findBySessionId(String sessionId);
 }

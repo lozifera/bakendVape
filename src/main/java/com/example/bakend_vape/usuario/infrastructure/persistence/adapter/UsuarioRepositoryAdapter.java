@@ -2,24 +2,22 @@ package com.example.bakend_vape.usuario.infrastructure.persistence.adapter;
 
 import com.example.bakend_vape.usuario.domain.model.Usuario;
 import com.example.bakend_vape.usuario.domain.repository.UsuarioRepository;
+import com.example.bakend_vape.usuario.domain.valueObject.Email;
 import com.example.bakend_vape.usuario.infrastructure.mapper.UsuarioMapper;
 import com.example.bakend_vape.usuario.infrastructure.persistence.entity.UsuarioEntity;
 import com.example.bakend_vape.usuario.infrastructure.persistence.jpa.JpaUsuarioRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
 @Repository
+@RequiredArgsConstructor
 public class UsuarioRepositoryAdapter implements UsuarioRepository {
 
     private final JpaUsuarioRepository jpa;
     private  final UsuarioMapper mapper;
-
-    public UsuarioRepositoryAdapter(JpaUsuarioRepository jpa) {
-        this.jpa = jpa;
-        this.mapper = new UsuarioMapper();
-    }
 
     @Override
     public Usuario save(Usuario usuario) {
@@ -36,13 +34,13 @@ public class UsuarioRepositoryAdapter implements UsuarioRepository {
     }
 
     @Override
-    public Optional<Usuario> findByEmail(String email) {
-        return jpa.findByEmail(email).map(mapper :: toDomain);
+    public Optional<Usuario> findByEmail(Email email) {
+        return jpa.findByEmail(email.getValue()).map(mapper :: toDomain);
     }
 
     @Override
-    public boolean existsByEmail(String email) {
-        return jpa.existsByEmail(email);
+    public boolean existsByEmail(Email email) {
+        return jpa.existsByEmail(email.getValue());
     }
 
     @Override

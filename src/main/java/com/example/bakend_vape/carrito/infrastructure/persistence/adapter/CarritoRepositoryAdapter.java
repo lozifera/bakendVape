@@ -22,10 +22,8 @@ public class CarritoRepositoryAdapter implements CarritoRepository {
 
     @Override
     public Carrito save(Carrito carrito) {
-
         CarritoEntity entity = mapper.toEntity(carrito);
         CarritoEntity saved = jpa.save(entity);
-
         return mapper.toDomain(saved);
     }
 
@@ -37,5 +35,15 @@ public class CarritoRepositoryAdapter implements CarritoRepository {
     @Override
     public Optional<Carrito> findByUsuarioId(Long usuarioId) {
         return jpa.findByUsuarioIdUsuario(usuarioId).map(mapper::toDomain);
+    }
+
+    @Override
+    public Optional<Carrito> findBySessionId(String sessionId) {
+        return jpa.findBySessionId(sessionId).map(mapper::toDomain);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        jpa.deleteById(id);
     }
 }

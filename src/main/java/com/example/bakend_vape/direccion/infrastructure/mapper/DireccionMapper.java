@@ -3,12 +3,14 @@ package com.example.bakend_vape.direccion.infrastructure.mapper;
 import com.example.bakend_vape.direccion.domain.model.Direccion;
 import com.example.bakend_vape.direccion.infrastructure.persistence.entity.DireccionEntity;
 import com.example.bakend_vape.usuario.infrastructure.mapper.UsuarioMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class DireccionMapper {
 
-    private UsuarioMapper usuarioMapper = new UsuarioMapper();
+    private final UsuarioMapper usuarioMapper;
 
 
 
@@ -28,7 +30,7 @@ public class DireccionMapper {
     public DireccionEntity toEntity(Direccion direccion) {
         if (direccion == null) return null;
         DireccionEntity entity = new DireccionEntity();
-        entity.setIdDireccion(direccion.getId_direccion());
+        entity.setIdDireccion(direccion.getIdDireccion());
         entity.setDireccion(direccion.getDireccion());
         entity.setReferencia(direccion.getReferencia());
         entity.setPrincipal(direccion.getPrincipal());

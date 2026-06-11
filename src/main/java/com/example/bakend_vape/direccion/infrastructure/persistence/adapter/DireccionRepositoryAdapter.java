@@ -5,21 +5,20 @@ import com.example.bakend_vape.direccion.domain.repository.DireccionRepository;
 import com.example.bakend_vape.direccion.infrastructure.mapper.DireccionMapper;
 import com.example.bakend_vape.direccion.infrastructure.persistence.entity.DireccionEntity;
 import com.example.bakend_vape.direccion.infrastructure.persistence.jpa.JpaDireccionRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
 @Repository
+@RequiredArgsConstructor
 public class DireccionRepositoryAdapter implements DireccionRepository {
 
     private final JpaDireccionRepository jpa;
     private final DireccionMapper mapper;
 
-    public DireccionRepositoryAdapter(JpaDireccionRepository jpa) {
-        this.jpa = jpa;
-        this.mapper = new DireccionMapper();
-    }
+
 
     @Override
     public Direccion save(Direccion direccion) {
@@ -36,7 +35,7 @@ public class DireccionRepositoryAdapter implements DireccionRepository {
     }
 
     @Override
-    public List<Direccion> findIdUsarioId(Long idUsuario) {
+    public List<Direccion> findByUsuario(Long idUsuario) {
         return jpa.findByUsuarioIdUsuario(idUsuario).stream().map(mapper :: toDomain).toList();
     }
 

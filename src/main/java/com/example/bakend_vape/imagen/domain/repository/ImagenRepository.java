@@ -12,6 +12,8 @@ public interface ImagenRepository {
 
     Optional<Imagen> findById(Long id);
 
+    Optional<Imagen> findByUrl(String url);
+
     List<Imagen> findAll();
 
     void delete(Long id);

@@ -10,6 +10,11 @@ public interface CarritoRepository {
 
     Optional<Carrito> findById(Long id);
 
+    /** Para usuarios autenticados */
     Optional<Carrito> findByUsuarioId(Long usuarioId);
 
+    /** Para visitantes anónimos */
+    Optional<Carrito> findBySessionId(String sessionId);
+
+    void deleteById(Long id);
 }

@@ -21,4 +21,10 @@ public interface PedidoProductoRepository {
 
     boolean existsByPedidoIdAndProductoId(Long idPedido, Long idProducto);
 
+    /**
+     * Devuelve el ranking de productos más vendidos.
+     * Cada Object[] contiene: [idProducto, nombre, precio, totalVendido, ingresosTotales]
+     * @param limite número máximo de productos a retornar
+     */
+    List<Object[]> findRankingProductos(int limite);
 }

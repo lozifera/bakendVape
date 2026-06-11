@@ -5,10 +5,12 @@ import com.example.bakend_vape.valoracion.domain.repository.ValoracionRepository
 import com.example.bakend_vape.valoracion.infrastructure.mapper.ValoracionMapper;
 import com.example.bakend_vape.valoracion.infrastructure.persistence.entity.ValoracionEntity;
 import com.example.bakend_vape.valoracion.infrastructure.persistence.jpa.JpaValoracionRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public class ValoracionRepositoryAdapter implements ValoracionRepository {
 
     private final JpaValoracionRepository jpa;

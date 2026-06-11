@@ -5,18 +5,20 @@ import com.example.bakend_vape.rol.domain.repository.RolRepository;
 import com.example.bakend_vape.rol.infrastructure.mapper.RolMapper;
 import com.example.bakend_vape.rol.infrastructure.persistence.entity.RolEntity;
 import com.example.bakend_vape.rol.infrastructure.persistence.jpa.JpaRolRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public class RolRepositoryAdapter implements RolRepository {
 
     private final JpaRolRepository jpa;
     private final RolMapper mapper;
 
-    public RolRepositoryAdapter(JpaRolRepository jpa) {
+    public RolRepositoryAdapter(JpaRolRepository jpa, RolMapper mapper) {
         this.jpa = jpa;
-        this.mapper = new RolMapper();
+        this.mapper = mapper;
     }
 
     @Override

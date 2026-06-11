@@ -1,6 +1,7 @@
 package com.example.bakend_vape.pedido.infrastructure.persistence.jpa;
 
 import com.example.bakend_vape.pedido.infrastructure.persistence.entity.PedidoProductoEntity;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -12,7 +13,24 @@ public interface JpaPedidoProductoRepository extends JpaRepository<PedidoProduct
 
     List<PedidoProductoEntity> findByProductoIdProducto(Long idProducto);
 
-    @Query("SELECT CASE WHEN COUNT(p) > 0 THEN true ELSE false END FROM PedidoProductoEntity p WHERE p.pedido.idPedido = ?1 AND p.producto.idProducto = ?2")
+    @Query("SELECT CASE WHEN COUNT(p) > 0 THEN true ELSE false END " +
+           "FROM PedidoProductoEntity p " +
+           "WHERE p.pedido.idPedido = ?1 AND p.producto.idProducto = ?2")
     boolean existsByPedidoAndProducto(Long idPedido, Long idProducto);
 
+    /**
+     * Ranking: agrega por producto la suma de unidades vendidas.
+     * Devuelve Object[] con [idProducto, nombre, precio, totalVendido, ingresosTotales].
+     */
+    @Query("""
+            SELECT p.producto.idProducto,
+                   p.producto.nombre,
+                   p.producto.precio,
+                   SUM(p.cantidad)          AS totalVendido,
+                   SUM(p.subtotal)          AS ingresosTotales
+            FROM PedidoProductoEntity p
+            GROUP BY p.producto.idProducto, p.producto.nombre, p.producto.precio
+            ORDER BY totalVendido DESC
+            """)
+    List<Object[]> findRankingProductos(Pageable pageable);
 }

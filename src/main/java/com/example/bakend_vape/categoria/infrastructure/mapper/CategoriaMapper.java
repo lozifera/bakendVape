@@ -14,20 +14,19 @@ public class CategoriaMapper {
         return new Categoria(
                 entity.getIdCategoria(),
                 entity.getNombre(),
-                entity.getCreatedAt().toLocalDate(),
-                entity.getUpdatedAt() != null ? entity.getUpdatedAt().toLocalDate() : null
+                entity.getCreatedAt(),
+                entity.getUpdatedAt()
         );
     }
 
-        public CategoriaEntity toEntity(Categoria categoria){
-            if (categoria == null){
-                return null;
-            }
-            CategoriaEntity entity = new CategoriaEntity();
-            entity.setIdCategoria(categoria.getId_categoria());
-            entity.setNombre(categoria.getNombre());
-
-            return entity;
+    public CategoriaEntity toEntity(Categoria categoria){
+        if (categoria == null){
+            return null;
         }
+        CategoriaEntity entity = new CategoriaEntity();
+        entity.setIdCategoria(categoria.getId_categoria());
+        entity.setNombre(categoria.getNombre());
+        return entity;
+    }
 
 }
