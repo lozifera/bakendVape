@@ -155,6 +155,16 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-maven-plugin</artifactId>
+				<version>11.7.2</version>
+				<configuration>
+					<url>jdbc:postgresql://localhost:5432/shop_vape</url>
+					<user>postgres</user>
+					<password>loza</password>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 

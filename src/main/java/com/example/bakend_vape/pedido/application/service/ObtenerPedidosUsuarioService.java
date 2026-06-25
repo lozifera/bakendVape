@@ -54,6 +54,8 @@ public class ObtenerPedidosUsuarioService implements ObtenerPedidosUsuarioUseCas
                     pedido.getTotal().value(),
                     pedido.getFecha(),
                     pedido.getEstado(),
+                    pedido.getDireccionEnvio(),
+                    pedido.getReferenciaEnvio(),
                     itemsResponse,
                     pedido.getCreatedAt()
             );

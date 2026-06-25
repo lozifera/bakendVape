@@ -5,5 +5,6 @@ public enum MotivoMovimiento {
     VALORACION,
     RESENYA,
     BONO_VIP,
+    CANJE,
     AJUSTE_ADMINISTRATIVO
 }

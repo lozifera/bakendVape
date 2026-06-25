@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @Setter
@@ -18,4 +19,7 @@ public class ActualizarProductoRequest {
     private Integer stockMinimo;
     private Long idCategoria;
     private Long idMarca;
+    private List<CrearProductoImagenRequest> imagenes;
+    private List<ProductoAtributoRequest> atributos;
+
 }

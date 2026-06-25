@@ -9,5 +9,6 @@ public interface JpaProductoAtributoRepository extends JpaRepository<ProductoAtr
 
     List<ProductoAtributoEntity> findByProductoIdProducto(Long idProducto);
 
+    List<ProductoAtributoEntity> findByAtributoIdAtributoAndValor(Long idAtributo, String valor);
 
 }

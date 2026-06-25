@@ -13,4 +13,6 @@ public interface SubastaRepository {
 
     List<Subasta> findAll();
 
+    List<Subasta> findExpiredActive();
+
 }

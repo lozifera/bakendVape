@@ -1,5 +1,6 @@
 package com.example.bakend_vape.pedido.infrastructure.persistence.adapter;
 
+import com.example.bakend_vape.pedido.domain.model.EstadoPedido;
 import com.example.bakend_vape.pedido.domain.model.Pedido;
 import com.example.bakend_vape.pedido.domain.repository.PedidoRepository;
 import com.example.bakend_vape.pedido.infrastructure.mapper.PedidoMapper;
@@ -7,6 +8,7 @@ import com.example.bakend_vape.pedido.infrastructure.persistence.entity.PedidoEn
 import com.example.bakend_vape.pedido.infrastructure.persistence.jpa.JpaPedidoRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,5 +45,21 @@ public class PedidoRepositoryAdapter implements PedidoRepository {
     @Override
     public List<Pedido> findAll() {
         return jpa.findAll().stream().map(mapper :: toDomain).toList();
+    }
+
+    @Override
+    public List<Pedido> findByEstado(EstadoPedido estado) {
+        return jpa.findByEstado(estado).stream().map(mapper :: toDomain).toList();
+    }
+
+    @Override
+    public long countByUsuarioId(Long usuarioId) {
+        return jpa.countByUsuarioIdUsuario(usuarioId);
+    }
+
+    @Override
+    public Optional<LocalDateTime> findUltimaFechaByUsuarioId(Long usuarioId) {
+        return jpa.findTopByUsuarioIdUsuarioOrderByCreatedAtDesc(usuarioId)
+                .map(PedidoEntity::getCreatedAt);
     }
 }

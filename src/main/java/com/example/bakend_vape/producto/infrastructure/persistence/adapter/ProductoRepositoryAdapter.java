@@ -46,6 +46,11 @@ public class ProductoRepositoryAdapter implements ProductoRepository {
     }
 
     @Override
+    public List<Producto> findByNombreContainingIgnoreCase(String search) {
+        return jpa.findByNombreContainingIgnoreCase(search).stream().map(mapper::toDomain).toList();
+    }
+
+    @Override
     public Optional<Producto> findByNombre(String nombre) {
         return jpa.findByNombre(nombre).map(mapper :: toDomain);
     }

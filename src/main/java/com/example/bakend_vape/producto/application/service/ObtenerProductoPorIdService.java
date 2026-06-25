@@ -1,8 +1,11 @@
 package com.example.bakend_vape.producto.application.service;
 
+import com.example.bakend_vape.atributo.domain.model.ProductoAtributo;
+import com.example.bakend_vape.atributo.domain.repository.ProductoAtributoRepository;
 import com.example.bakend_vape.imagen.application.dto.ImagenResponse;
 import com.example.bakend_vape.imagen.domain.model.ImagenProducto;
 import com.example.bakend_vape.imagen.domain.repository.ImagenProductoRepository;
+import com.example.bakend_vape.producto.application.dto.AtributoEnProductoResponse;
 import com.example.bakend_vape.producto.application.dto.ProductoResponse;
 import com.example.bakend_vape.producto.application.usecase.ObtenerProductoPorIdUseCase;
 import com.example.bakend_vape.producto.domain.model.Producto;
@@ -18,11 +21,14 @@ public class ObtenerProductoPorIdService implements ObtenerProductoPorIdUseCase 
 
     private final ProductoRepository productoRepository;
     private final ImagenProductoRepository imagenProductoRepository;
+    private final ProductoAtributoRepository productoAtributoRepository;
 
     public ObtenerProductoPorIdService(ProductoRepository productoRepository,
-                                       ImagenProductoRepository imagenProductoRepository) {
+                                       ImagenProductoRepository imagenProductoRepository,
+                                       ProductoAtributoRepository productoAtributoRepository) {
         this.productoRepository = productoRepository;
         this.imagenProductoRepository = imagenProductoRepository;
+        this.productoAtributoRepository = productoAtributoRepository;
     }
 
     @Override
@@ -40,6 +46,15 @@ public class ObtenerProductoPorIdService implements ObtenerProductoPorIdUseCase 
                     rel.getImagen().getEstado()
             ));
         }
+
+        List<ProductoAtributo> attrs = productoAtributoRepository.findByProductoId(id);
+        List<AtributoEnProductoResponse> atributos = attrs.stream()
+                .map(pa -> new AtributoEnProductoResponse(
+                        pa.getAtributo().getIdAtributo(),
+                        pa.getAtributo().getNombre(),
+                        pa.getAtributo().getUnidad(),
+                        pa.getValor()
+                )).toList();
 
         return new ProductoResponse(
                 producto.getIdProducto(),
@@ -62,6 +77,7 @@ public class ObtenerProductoPorIdService implements ObtenerProductoPorIdUseCase 
                         producto.getMarca().getUpdated_at()
                 ),
                 imagenes,
+                atributos,
                 producto.getCreatedAt(),
                 producto.getUpdatedAt()
         );

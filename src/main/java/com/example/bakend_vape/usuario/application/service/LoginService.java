@@ -8,8 +8,10 @@ import com.example.bakend_vape.usuario.domain.repository.UsuarioRepository;
 import com.example.bakend_vape.usuario.domain.valueObject.Email;
 import com.example.bakend_vape.usuario.security.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +32,8 @@ public class LoginService implements LoginUseCase {
                                 )
                         )
                         .orElseThrow(() ->
-                                new RuntimeException(
+                                new ResponseStatusException(
+                                        HttpStatus.UNAUTHORIZED,
                                         "Credenciales inválidas"
                                 )
                         );
@@ -42,7 +45,8 @@ public class LoginService implements LoginUseCase {
                 );
 
         if (!coincide) {
-            throw new RuntimeException(
+            throw new ResponseStatusException(
+                    HttpStatus.UNAUTHORIZED,
                     "Credenciales inválidas"
             );
         }

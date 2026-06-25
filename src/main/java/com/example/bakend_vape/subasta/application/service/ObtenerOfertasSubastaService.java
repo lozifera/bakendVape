@@ -6,6 +6,7 @@ import com.example.bakend_vape.subasta.application.usecase.ObtenerOfertasSubasta
 import com.example.bakend_vape.subasta.domain.repository.OfertaSubastaRepository;
 import com.example.bakend_vape.subasta.domain.repository.SubastaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -22,6 +23,7 @@ public class ObtenerOfertasSubastaService implements ObtenerOfertasSubastaUseCas
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<OfertaSubastaResponse> execute(Long idSubasta) {
         subastaRepository.findById(idSubasta)
                 .orElseThrow(() -> new NotFoundException("Subasta no encontrada"));

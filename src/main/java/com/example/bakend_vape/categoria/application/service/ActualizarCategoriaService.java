@@ -1,5 +1,7 @@
 package com.example.bakend_vape.categoria.application.service;
 
+import com.example.bakend_vape.auditoria.application.service.AuditoriaService;
+import com.example.bakend_vape.auditoria.domain.model.AccionAuditoria;
 import com.example.bakend_vape.categoria.application.dto.ActualizarCategoriaRequest;
 import com.example.bakend_vape.categoria.application.dto.CategoriaResponse;
 import com.example.bakend_vape.categoria.application.dto.CrearCategoriaImagenRequest;
@@ -11,6 +13,8 @@ import com.example.bakend_vape.imagen.domain.model.Imagen;
 import com.example.bakend_vape.imagen.domain.model.ImagenCategoria;
 import com.example.bakend_vape.imagen.domain.repository.ImagenCategoriaRepository;
 import com.example.bakend_vape.imagen.domain.repository.ImagenRepository;
+import com.example.bakend_vape.shared.security.UsuarioAutenticadoService;
+import com.example.bakend_vape.usuario.domain.model.Usuario;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,13 +27,19 @@ public class ActualizarCategoriaService implements ActualizarCategoriaUseCase {
     private final CategoriaRepository categoriaRepository;
     private final ImagenRepository imagenRepository;
     private final ImagenCategoriaRepository imagenCategoriaRepository;
+    private final UsuarioAutenticadoService usuarioAutenticadoService;
+    private final AuditoriaService auditoriaService;
 
     public ActualizarCategoriaService(CategoriaRepository categoriaRepository,
                                      ImagenRepository imagenRepository,
-                                     ImagenCategoriaRepository imagenCategoriaRepository) {
+                                     ImagenCategoriaRepository imagenCategoriaRepository,
+                                     UsuarioAutenticadoService usuarioAutenticadoService,
+                                     AuditoriaService auditoriaService) {
         this.categoriaRepository = categoriaRepository;
         this.imagenRepository = imagenRepository;
         this.imagenCategoriaRepository = imagenCategoriaRepository;
+        this.usuarioAutenticadoService = usuarioAutenticadoService;
+        this.auditoriaService = auditoriaService;
     }
 
     @Override
@@ -38,6 +48,8 @@ public class ActualizarCategoriaService implements ActualizarCategoriaUseCase {
         // Buscar categoría existente
         Categoria categoria = categoriaRepository.findById(idCategoria)
                 .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+
+        String valorAnterior = categoria.getNombre();
 
         // Actualizar nombre si se proporciona
         if (request.getNombre() != null && !request.getNombre().trim().isEmpty()) {
@@ -57,6 +69,20 @@ public class ActualizarCategoriaService implements ActualizarCategoriaUseCase {
         categoria.setUpdated_at(LocalDateTime.now());
 
         Categoria categoriaActualizada = categoriaRepository.save(categoria);
+
+        Usuario usuario = usuarioAutenticadoService.obtenerUsuario();
+        try {
+            auditoriaService.registrar(
+                    usuario,
+                    AccionAuditoria.UPDATE,
+                    "categoria",
+                    idCategoria,
+                    valorAnterior,
+                    categoriaActualizada.getNombre()
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         // Procesar imágenes si se proporcionan
         List<ImagenResponse> imagenesResponse = new ArrayList<>();

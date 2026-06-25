@@ -1,5 +1,7 @@
 package com.example.bakend_vape.categoria.application.service;
 
+import com.example.bakend_vape.auditoria.application.service.AuditoriaService;
+import com.example.bakend_vape.auditoria.domain.model.AccionAuditoria;
 import com.example.bakend_vape.categoria.application.dto.CrearCategoriaImagenRequest;
 import com.example.bakend_vape.categoria.application.dto.CrearCategoriaRequest;
 import com.example.bakend_vape.categoria.application.dto.CategoriaResponse;
@@ -11,6 +13,8 @@ import com.example.bakend_vape.imagen.domain.model.Imagen;
 import com.example.bakend_vape.imagen.domain.model.ImagenCategoria;
 import com.example.bakend_vape.imagen.domain.repository.ImagenCategoriaRepository;
 import com.example.bakend_vape.imagen.domain.repository.ImagenRepository;
+import com.example.bakend_vape.shared.security.UsuarioAutenticadoService;
+import com.example.bakend_vape.usuario.domain.model.Usuario;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,13 +27,19 @@ public class CrearCategoriaService implements CrearCategoriaUseCase {
     private final CategoriaRepository categoriaRepository;
     private final ImagenRepository imagenRepository;
     private final ImagenCategoriaRepository imagenCategoriaRepository;
+    private final UsuarioAutenticadoService usuarioAutenticadoService;
+    private final AuditoriaService auditoriaService;
 
     public CrearCategoriaService(CategoriaRepository categoriaRepository,
                                 ImagenRepository imagenRepository,
-                                ImagenCategoriaRepository imagenCategoriaRepository) {
+                                ImagenCategoriaRepository imagenCategoriaRepository,
+                                UsuarioAutenticadoService usuarioAutenticadoService,
+                                AuditoriaService auditoriaService) {
         this.categoriaRepository = categoriaRepository;
         this.imagenRepository = imagenRepository;
         this.imagenCategoriaRepository = imagenCategoriaRepository;
+        this.usuarioAutenticadoService = usuarioAutenticadoService;
+        this.auditoriaService = auditoriaService;
     }
 
     @Override
@@ -55,6 +65,20 @@ public class CrearCategoriaService implements CrearCategoriaUseCase {
         );
 
         Categoria categoriaGuardada = categoriaRepository.save(categoria);
+
+        Usuario usuario = usuarioAutenticadoService.obtenerUsuario();
+        try {
+            auditoriaService.registrar(
+                    usuario,
+                    AccionAuditoria.CREATE,
+                    "categoria",
+                    categoriaGuardada.getId_categoria(),
+                    null,
+                    categoriaGuardada.getNombre()
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         // Procesar imágenes
         List<ImagenResponse> imagenesResponse = new ArrayList<>();

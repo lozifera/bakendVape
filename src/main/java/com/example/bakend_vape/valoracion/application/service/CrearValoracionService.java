@@ -1,5 +1,7 @@
 package com.example.bakend_vape.valoracion.application.service;
 
+import com.example.bakend_vape.auditoria.application.service.AuditoriaService;
+import com.example.bakend_vape.auditoria.domain.model.AccionAuditoria;
 import com.example.bakend_vape.pedido.domain.repository.PedidoProductoRepository;
 import com.example.bakend_vape.producto.domain.model.Producto;
 import com.example.bakend_vape.producto.domain.repository.ProductoRepository;
@@ -10,6 +12,7 @@ import com.example.bakend_vape.shared.domain.exception.BusinessException;
 import com.example.bakend_vape.shared.domain.exception.NotFoundException;
 import com.example.bakend_vape.shared.domain.exception.ValidationException;
 import com.example.bakend_vape.shared.domain.valueObject.Puntos;
+import com.example.bakend_vape.shared.security.UsuarioAutenticadoService;
 import com.example.bakend_vape.usuario.domain.model.Usuario;
 import com.example.bakend_vape.usuario.domain.repository.UsuarioRepository;
 import com.example.bakend_vape.valoracion.application.dto.CrearValoracionRequest;
@@ -29,17 +32,23 @@ public class CrearValoracionService implements CrearValoracionUseCase {
     private final ProductoRepository productoRepository;
     private final PedidoProductoRepository pedidoProductoRepository;
     private final MovimientoPuntosRepository movimientoPuntosRepository;
+    private final UsuarioAutenticadoService usuarioAutenticadoService;
+    private final AuditoriaService auditoriaService;
 
     public CrearValoracionService(ValoracionRepository valoracionRepository,
                                   UsuarioRepository usuarioRepository,
                                   ProductoRepository productoRepository,
                                   PedidoProductoRepository pedidoProductoRepository,
-                                  MovimientoPuntosRepository movimientoPuntosRepository) {
+                                  MovimientoPuntosRepository movimientoPuntosRepository,
+                                  UsuarioAutenticadoService usuarioAutenticadoService,
+                                  AuditoriaService auditoriaService) {
         this.valoracionRepository = valoracionRepository;
         this.usuarioRepository = usuarioRepository;
         this.productoRepository = productoRepository;
         this.pedidoProductoRepository = pedidoProductoRepository;
         this.movimientoPuntosRepository = movimientoPuntosRepository;
+        this.usuarioAutenticadoService = usuarioAutenticadoService;
+        this.auditoriaService = auditoriaService;
     }
 
     @Override
@@ -64,15 +73,6 @@ public class CrearValoracionService implements CrearValoracionUseCase {
             throw new BusinessException("Solo puedes valorar productos que hayas comprado");
         }
 
-        // Regla: una valoración por producto por usuario
-        boolean yaValoro = valoracionRepository.findByUsuarioId(request.getIdUsuario())
-                .stream()
-                .anyMatch(v -> v.getProducto().getIdProducto().equals(request.getIdProducto()));
-
-        if (yaValoro) {
-            throw new BusinessException("Ya has valorado este producto");
-        }
-
         if (request.getPuntuacion() < 1 || request.getPuntuacion() > 5) {
             throw new ValidationException("La puntuación debe estar entre 1 y 5");
         }
@@ -84,6 +84,20 @@ public class CrearValoracionService implements CrearValoracionUseCase {
         );
 
         Valoracion guardada = valoracionRepository.save(valoracion);
+
+        Usuario usuarioAuditoria = usuarioAutenticadoService.obtenerUsuario();
+        try {
+            auditoriaService.registrar(
+                    usuarioAuditoria,
+                    AccionAuditoria.CREATE,
+                    "valoracion",
+                    guardada.getIdValoracion(),
+                    null,
+                    "Producto: " + producto.getNombre() + " | Puntuación: " + request.getPuntuacion()
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         // Otorgar 2 puntos por valorar
         MovimientoPuntos movimiento = new MovimientoPuntos(

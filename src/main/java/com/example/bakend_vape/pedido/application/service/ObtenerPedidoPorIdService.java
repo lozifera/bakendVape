@@ -47,6 +47,8 @@ public class ObtenerPedidoPorIdService implements ObtenerPedidoPorIdUseCase {
                 pedido.getTotal().value(),
                 pedido.getFecha(),
                 pedido.getEstado(),
+                pedido.getDireccionEnvio(),
+                pedido.getReferenciaEnvio(),
                 itemsResponse,
                 pedido.getCreatedAt()
         );

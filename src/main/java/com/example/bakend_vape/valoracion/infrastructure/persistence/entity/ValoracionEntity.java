@@ -20,6 +20,7 @@ public class ValoracionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_valoracion")
     private Long idValoracion;
 
     @ManyToOne(fetch = FetchType.LAZY)

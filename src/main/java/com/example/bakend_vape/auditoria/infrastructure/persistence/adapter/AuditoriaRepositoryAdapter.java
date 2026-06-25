@@ -5,6 +5,7 @@ import com.example.bakend_vape.auditoria.domain.repository.AuditoriaRepository;
 import com.example.bakend_vape.auditoria.infrastructure.mapper.AuditoriaMapper;
 import com.example.bakend_vape.auditoria.infrastructure.persistence.entity.AuditoriaEntity;
 import com.example.bakend_vape.auditoria.infrastructure.persistence.jpa.JpaAuditoriaRepository;
+import com.example.bakend_vape.usuario.domain.model.Usuario;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,15 +17,19 @@ public class AuditoriaRepositoryAdapter implements AuditoriaRepository {
     private final JpaAuditoriaRepository jpa;
     private final AuditoriaMapper mapper;
 
-    public AuditoriaRepositoryAdapter(JpaAuditoriaRepository jpa) {
+
+    public AuditoriaRepositoryAdapter(JpaAuditoriaRepository jpa, AuditoriaMapper mapper) {
         this.jpa = jpa;
-        this.mapper = new AuditoriaMapper();
+        this.mapper = mapper;
     }
 
     @Override
     public Auditoria save(Auditoria auditoria) {
 
-        AuditoriaEntity entity = mapper.toEntity(auditoria);
+        Usuario usuario = auditoria.getUsuario();
+
+        AuditoriaEntity entity = mapper.toEntity(auditoria, usuario);
+
         AuditoriaEntity saved = jpa.save(entity);
 
         return mapper.toDomain(saved);

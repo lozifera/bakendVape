@@ -6,6 +6,7 @@ import com.example.bakend_vape.subasta.domain.model.OfertaSubasta;
 import com.example.bakend_vape.subasta.domain.repository.OfertaSubastaRepository;
 import com.example.bakend_vape.subasta.domain.repository.SubastaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.Comparator;
@@ -24,6 +25,7 @@ public class ObtenerSubastasService implements ObtenerSubastasUseCase {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<SubastaResponse> execute() {
         return subastaRepository.findAll().stream().map(subasta -> {
             List<OfertaSubasta> ofertas = ofertaSubastaRepository.findBySubastaId(subasta.getIdSubasta());

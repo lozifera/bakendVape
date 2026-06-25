@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/imagenes")
+@RequestMapping("/imagenes")
 public class ImagenController {
 
     private final SubirImagenUseCase subirImagenUseCase;

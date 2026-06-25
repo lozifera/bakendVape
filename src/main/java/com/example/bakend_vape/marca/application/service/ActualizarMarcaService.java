@@ -1,10 +1,14 @@
 package com.example.bakend_vape.marca.application.service;
 
+import com.example.bakend_vape.auditoria.application.service.AuditoriaService;
+import com.example.bakend_vape.auditoria.domain.model.AccionAuditoria;
 import com.example.bakend_vape.marca.application.dto.ActualizarMarcaRequest;
 import com.example.bakend_vape.marca.application.dto.MarcaResponse;
 import com.example.bakend_vape.marca.application.usecase.ActualizarMarcaUseCase;
 import com.example.bakend_vape.marca.domain.model.Marca;
 import com.example.bakend_vape.marca.domain.repository.MarcaRepository;
+import com.example.bakend_vape.shared.security.UsuarioAutenticadoService;
+import com.example.bakend_vape.usuario.domain.model.Usuario;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -13,9 +17,15 @@ import java.time.LocalDateTime;
 public class ActualizarMarcaService implements ActualizarMarcaUseCase {
 
     private final MarcaRepository marcaRepository;
+    private final UsuarioAutenticadoService usuarioAutenticadoService;
+    private final AuditoriaService auditoriaService;
 
-    public ActualizarMarcaService(MarcaRepository marcaRepository) {
+    public ActualizarMarcaService(MarcaRepository marcaRepository,
+                                  UsuarioAutenticadoService usuarioAutenticadoService,
+                                  AuditoriaService auditoriaService) {
         this.marcaRepository = marcaRepository;
+        this.usuarioAutenticadoService = usuarioAutenticadoService;
+        this.auditoriaService = auditoriaService;
     }
 
     @Override
@@ -24,6 +34,8 @@ public class ActualizarMarcaService implements ActualizarMarcaUseCase {
         // Buscar marca existente
         Marca marca = marcaRepository.findById(idMarca)
                 .orElseThrow(() -> new RuntimeException("Marca no encontrada"));
+
+        String valorAnterior = marca.getNombre();
 
         // Actualizar nombre si se proporciona
         if (request.getNombre() != null && !request.getNombre().trim().isEmpty()) {
@@ -43,6 +55,20 @@ public class ActualizarMarcaService implements ActualizarMarcaUseCase {
         marca.setUpdated_at(LocalDateTime.now());
 
         Marca marcaActualizada = marcaRepository.save(marca);
+
+        Usuario usuario = usuarioAutenticadoService.obtenerUsuario();
+        try {
+            auditoriaService.registrar(
+                    usuario,
+                    AccionAuditoria.UPDATE,
+                    "marca",
+                    idMarca,
+                    valorAnterior,
+                    marcaActualizada.getNombre()
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return new MarcaResponse(
                 marcaActualizada.getId_marca(),

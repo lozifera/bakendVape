@@ -21,6 +21,8 @@ public class PedidoMapper {
                 new Money(entity.getTotal()),
                 entity.getFecha(),
                 entity.getEstado(),
+                entity.getDireccionEnvio(),
+                entity.getReferenciaEnvio(),
                 entity.getCreatedAt(),
                 entity.getUpdatedAt()
         );
@@ -36,6 +38,8 @@ public class PedidoMapper {
         entity.setTotal(pedido.getTotal().value());
         entity.setFecha(pedido.getFecha());
         entity.setEstado(pedido.getEstado());
+        entity.setDireccionEnvio(pedido.getDireccionEnvio());
+        entity.setReferenciaEnvio(pedido.getReferenciaEnvio());
         entity.setCreatedAt(pedido.getCreatedAt());
         entity.setUpdatedAt(pedido.getUpdatedAt());
         return entity;

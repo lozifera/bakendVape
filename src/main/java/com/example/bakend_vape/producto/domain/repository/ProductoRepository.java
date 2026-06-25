@@ -19,6 +19,8 @@ public interface ProductoRepository {
 
     List<Producto> findByMarcaId(Long marcaId);
 
+    List<Producto> findByNombreContainingIgnoreCase(String search);
+
     Boolean existsByNombre(String nombre);
 
     void delete(Long id);

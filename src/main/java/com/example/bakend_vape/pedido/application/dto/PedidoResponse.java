@@ -1,5 +1,6 @@
 package com.example.bakend_vape.pedido.application.dto;
 
+import com.example.bakend_vape.pedido.domain.model.EstadoPedido;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,7 +21,14 @@ public class PedidoResponse {
 
     private BigDecimal total;
     private LocalDateTime fecha;
-    private Boolean estado;
+    private EstadoPedido estado;
+
+    @JsonProperty("direccion_envio")
+    private String direccionEnvio;
+
+    @JsonProperty("referencia_envio")
+    private String referenciaEnvio;
+
     private List<PedidoProductoResponse> productos;
 
     @JsonProperty("created_at")

@@ -1,9 +1,7 @@
 package com.example.bakend_vape.producto.infrastructure.controller;
 
-import com.example.bakend_vape.producto.application.dto.ActualizarProductoRequest;
-import com.example.bakend_vape.producto.application.dto.CrearProductoRequest;
-import com.example.bakend_vape.producto.application.dto.ProductoRankingResponse;
-import com.example.bakend_vape.producto.application.dto.ProductoResponse;
+import com.example.bakend_vape.imagen.application.dto.ImagenResponse;
+import com.example.bakend_vape.producto.application.dto.*;
 import com.example.bakend_vape.producto.application.usecase.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,19 +19,17 @@ public class ProductoController {
     private final ActualizarProductoUseCase actualizarProductoUseCase;
     private final EliminarProductoUseCase eliminarProductoUseCase;
     private final ObtenerRankingProductosUseCase obtenerRankingProductosUseCase;
+    private final ActualizarImagenesProductoUseCase actualizarImagenesProductoUseCase;
 
-    public ProductoController(CrearProductoUseCase crearProductoUseCase,
-                              ObtenerProductosUseCase obtenerProductosUseCase,
-                              ObtenerProductoPorIdUseCase obtenerProductoPorIdUseCase,
-                              ActualizarProductoUseCase actualizarProductoUseCase,
-                              EliminarProductoUseCase eliminarProductoUseCase,
-                              ObtenerRankingProductosUseCase obtenerRankingProductosUseCase) {
+
+    public ProductoController(CrearProductoUseCase crearProductoUseCase, ObtenerProductosUseCase obtenerProductosUseCase, ObtenerProductoPorIdUseCase obtenerProductoPorIdUseCase, ActualizarProductoUseCase actualizarProductoUseCase, EliminarProductoUseCase eliminarProductoUseCase, ObtenerRankingProductosUseCase obtenerRankingProductosUseCase, ActualizarImagenesProductoUseCase actualizarImagenesProductoUseCase) {
         this.crearProductoUseCase = crearProductoUseCase;
         this.obtenerProductosUseCase = obtenerProductosUseCase;
         this.obtenerProductoPorIdUseCase = obtenerProductoPorIdUseCase;
         this.actualizarProductoUseCase = actualizarProductoUseCase;
         this.eliminarProductoUseCase = eliminarProductoUseCase;
         this.obtenerRankingProductosUseCase = obtenerRankingProductosUseCase;
+        this.actualizarImagenesProductoUseCase = actualizarImagenesProductoUseCase;
     }
 
     /** POST /productos */
@@ -42,10 +38,19 @@ public class ProductoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(crearProductoUseCase.execute(request));
     }
 
-    /** GET /productos */
+    /** GET /productos?search=&categoria=&marca=&atributo=&valorAtributo= */
     @GetMapping
-    public ResponseEntity<List<ProductoResponse>> listar() {
-        return ResponseEntity.ok(obtenerProductosUseCase.execute());
+    public ResponseEntity<List<ProductoResponse>> listar(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Long categoria,
+            @RequestParam(required = false) Long marca,
+            @RequestParam(required = false) Long atributo,
+            @RequestParam(required = false) String valorAtributo) {
+        if (search == null && categoria == null && marca == null && atributo == null) {
+            return ResponseEntity.ok(obtenerProductosUseCase.execute());
+        }
+        ProductoFilterParams filtros = new ProductoFilterParams(search, categoria, marca, atributo, valorAtributo);
+        return ResponseEntity.ok(obtenerProductosUseCase.execute(filtros));
     }
 
     /** GET /productos/{id} */
@@ -55,11 +60,25 @@ public class ProductoController {
     }
 
     /** PUT /productos/{id} */
-    @PutMapping("/{id}")
-    public ResponseEntity<ProductoResponse> actualizar(@PathVariable Long id,
-                                                       @RequestBody ActualizarProductoRequest request) {
-        return ResponseEntity.ok(actualizarProductoUseCase.execute(id, request));
+    @PatchMapping("/{id}")
+    public ResponseEntity<ProductoResponse> actualizar(
+            @PathVariable Long id,
+            @RequestBody ActualizarProductoRequest request) {
+
+        return ResponseEntity.ok(
+                actualizarProductoUseCase.execute(id, request)
+        );
     }
+
+    /** PATCH /productos/{id}/imagenes */
+    @PatchMapping("/{id}/imagenes")
+    public ResponseEntity<List<ImagenResponse>> actualizarImagenes(
+            @PathVariable Long id,
+            @RequestBody ActualizarImagenesProductoRequest request) {
+        return ResponseEntity.ok(actualizarImagenesProductoUseCase.execute(id, request.getImagenes()));
+    }
+
+
 
     /** DELETE /productos/{id} */
     @DeleteMapping("/{id}")

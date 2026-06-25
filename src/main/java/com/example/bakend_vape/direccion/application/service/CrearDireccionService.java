@@ -1,10 +1,13 @@
 package com.example.bakend_vape.direccion.application.service;
 
+import com.example.bakend_vape.auditoria.application.service.AuditoriaService;
+import com.example.bakend_vape.auditoria.domain.model.AccionAuditoria;
 import com.example.bakend_vape.direccion.application.dto.CrearDireccionRequest;
 import com.example.bakend_vape.direccion.application.dto.DireccionResponse;
 import com.example.bakend_vape.direccion.application.usecase.CrearDireccionUseCase;
 import com.example.bakend_vape.direccion.domain.model.Direccion;
 import com.example.bakend_vape.direccion.domain.repository.DireccionRepository;
+import com.example.bakend_vape.shared.security.UsuarioAutenticadoService;
 import com.example.bakend_vape.usuario.domain.model.Usuario;
 import com.example.bakend_vape.usuario.domain.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
@@ -17,17 +20,20 @@ public class CrearDireccionService implements CrearDireccionUseCase {
 
     private final DireccionRepository direccionRepository;
     private final UsuarioRepository usuarioRepository;
+    private final UsuarioAutenticadoService usuarioAutenticadoService;
+    private final AuditoriaService auditoriaService;
 
-    public CrearDireccionService(DireccionRepository direccionRepository, UsuarioRepository usuarioRepository) {
+    public CrearDireccionService(DireccionRepository direccionRepository, UsuarioRepository usuarioRepository, UsuarioAutenticadoService usuarioAutenticadoService, AuditoriaService auditoriaService) {
         this.direccionRepository = direccionRepository;
         this.usuarioRepository = usuarioRepository;
+        this.usuarioAutenticadoService = usuarioAutenticadoService;
+        this.auditoriaService = auditoriaService;
     }
-
 
     @Override
     public DireccionResponse execute(CrearDireccionRequest request) {
 
-        Usuario usuario = usuarioRepository.findById(request.getIdUsuario())
+        Usuario usuarioDestino = usuarioRepository.findById(request.getIdUsuario())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         // Verificar si el usuario ya tiene direcciones
@@ -50,12 +56,26 @@ public class CrearDireccionService implements CrearDireccionUseCase {
                 request.getDireccion(),
                 request.getRefrencia(),
                 seraPrincipal,
-                usuario,
+                usuarioDestino,
                 LocalDateTime.now(),
                 LocalDateTime.now()
         );
 
         Direccion saved = direccionRepository.save(direccion);
+        Usuario usuario = usuarioAutenticadoService.obtenerUsuario();
+
+        try {
+            auditoriaService.registrar(
+                    usuario,
+                    AccionAuditoria.CREATE,
+                    "direccion",
+                    saved.getIdDireccion(),
+                    null,
+                    saved.getDireccion()
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return new DireccionResponse(
             saved.getIdDireccion(),

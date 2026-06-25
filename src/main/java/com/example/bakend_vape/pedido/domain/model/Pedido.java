@@ -17,7 +17,9 @@ public class Pedido {
     private Usuario usuario;
     private Money total;
     private LocalDateTime fecha;
-    private Boolean estado;
+    private EstadoPedido estado;
+    private String direccionEnvio;
+    private String referenciaEnvio;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

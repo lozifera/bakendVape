@@ -54,6 +54,6 @@ public class AvisoRepositoryAdapter implements AvisoRepository {
 
     @Override
     public List<Aviso> listActivos() {
-        return jpa.findBySoloVipTrue().stream().map(mapper :: toDomain).toList();
+        return jpa.findAll().stream().map(mapper :: toDomain).toList();
     }
 }

@@ -1,6 +1,6 @@
 package com.example.bakend_vape.pedido.infrastructure.persistence.entity;
 
-
+import com.example.bakend_vape.pedido.domain.model.EstadoPedido;
 import com.example.bakend_vape.usuario.infrastructure.persistence.entity.UsuarioEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -34,8 +34,15 @@ public class PedidoEntity {
     @Column(name = "fecha")
     private LocalDateTime fecha;
 
-    @Column(nullable = false)
-    private Boolean estado;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private EstadoPedido estado;
+
+    @Column(name = "direccion_envio")
+    private String direccionEnvio;
+
+    @Column(name = "referencia_envio")
+    private String referenciaEnvio;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false , updatable = false)
@@ -44,9 +51,4 @@ public class PedidoEntity {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
-
-
-
-
 }

@@ -1,11 +1,15 @@
 package com.example.bakend_vape.marca.application.service;
 
+import com.example.bakend_vape.auditoria.application.service.AuditoriaService;
+import com.example.bakend_vape.auditoria.domain.model.AccionAuditoria;
 import com.example.bakend_vape.marca.application.dto.CrearMarcaRequest;
 import com.example.bakend_vape.marca.application.dto.MarcaResponse;
 import com.example.bakend_vape.marca.application.usecase.CrearMarcaUseCase;
 import com.example.bakend_vape.marca.domain.model.Marca;
 import com.example.bakend_vape.marca.domain.repository.MarcaRepository;
 import com.example.bakend_vape.marca.infrastructure.mapper.MarcaMapper;
+import com.example.bakend_vape.shared.security.UsuarioAutenticadoService;
+import com.example.bakend_vape.usuario.domain.model.Usuario;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -15,10 +19,16 @@ public class CrearMarcaService implements CrearMarcaUseCase {
 
     private final MarcaRepository marcaRepository;
     private final MarcaMapper marcaMapper;
+    private final UsuarioAutenticadoService usuarioAutenticadoService;
+    private final AuditoriaService auditoriaService;
 
-    public CrearMarcaService(MarcaRepository marcaRepository, MarcaMapper marcaMapper) {
+    public CrearMarcaService(MarcaRepository marcaRepository, MarcaMapper marcaMapper,
+                             UsuarioAutenticadoService usuarioAutenticadoService,
+                             AuditoriaService auditoriaService) {
         this.marcaRepository = marcaRepository;
         this.marcaMapper = marcaMapper;
+        this.usuarioAutenticadoService = usuarioAutenticadoService;
+        this.auditoriaService = auditoriaService;
     }
 
     @Override
@@ -44,6 +54,20 @@ public class CrearMarcaService implements CrearMarcaUseCase {
         );
 
         Marca marcaGuardada = marcaRepository.save(marca);
+
+        Usuario usuario = usuarioAutenticadoService.obtenerUsuario();
+        try {
+            auditoriaService.registrar(
+                    usuario,
+                    AccionAuditoria.CREATE,
+                    "marca",
+                    marcaGuardada.getId_marca(),
+                    null,
+                    marcaGuardada.getNombre()
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return new MarcaResponse(
                 marcaGuardada.getId_marca(),

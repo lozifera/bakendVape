@@ -6,12 +6,14 @@ import com.example.bakend_vape.marca.application.dto.MarcaResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductoResponse {
@@ -25,6 +27,7 @@ public class ProductoResponse {
     private CategoriaResponse categoria;
     private MarcaResponse marca;
     private List<ImagenResponse> imagenes;
+    private List<AtributoEnProductoResponse> atributos;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

@@ -20,5 +20,6 @@ public class CrearProductoRequest {
     private Long idCategoria;
     private Long idMarca;
     private List<CrearProductoImagenRequest> imagenes;
+    private List<ProductoAtributoRequest> atributos;
 
 }

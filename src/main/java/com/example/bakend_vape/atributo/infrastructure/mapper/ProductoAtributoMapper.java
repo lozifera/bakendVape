@@ -8,10 +8,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class ProductoAtributoMapper {
 
-    private final ProductoMapper productoMapper = new ProductoMapper();
+    private final ProductoMapper productoMapper;
+    private final AtributoMapper atributoMapper;
 
-    private final AtributoMapper atributoMapper = new AtributoMapper();
-
+    public ProductoAtributoMapper(ProductoMapper productoMapper, AtributoMapper atributoMapper) {
+        this.productoMapper = productoMapper;
+        this.atributoMapper = atributoMapper;
+    }
 
     public ProductoAtributo toDomain(ProductoAtributoEntity entity) {
         if (entity == null) {

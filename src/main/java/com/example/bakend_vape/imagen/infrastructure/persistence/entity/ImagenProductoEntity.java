@@ -20,6 +20,7 @@ public class ImagenProductoEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_imagen_producto")
     private Long idImagenProducto;
 
     @ManyToOne(fetch = FetchType.LAZY)

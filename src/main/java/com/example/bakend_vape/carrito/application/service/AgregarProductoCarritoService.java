@@ -1,5 +1,7 @@
 package com.example.bakend_vape.carrito.application.service;
 
+import com.example.bakend_vape.auditoria.application.service.AuditoriaService;
+import com.example.bakend_vape.auditoria.domain.model.AccionAuditoria;
 import com.example.bakend_vape.carrito.application.dto.AgregarProductoCarritoRequest;
 import com.example.bakend_vape.carrito.application.dto.CarritoProductoResponse;
 import com.example.bakend_vape.carrito.application.dto.CarritoResponse;
@@ -17,6 +19,8 @@ import com.example.bakend_vape.producto.domain.repository.ProductoRepository;
 import com.example.bakend_vape.shared.domain.exception.BusinessException;
 import com.example.bakend_vape.shared.domain.exception.NotFoundException;
 import com.example.bakend_vape.shared.domain.valueObject.Money;
+import com.example.bakend_vape.shared.security.UsuarioAutenticadoService;
+import com.example.bakend_vape.usuario.domain.model.Usuario;
 import com.example.bakend_vape.usuario.domain.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 
@@ -34,24 +38,25 @@ public class AgregarProductoCarritoService implements AgregarProductoCarritoUseC
     private final ProductoRepository productoRepository;
     private final UsuarioRepository usuarioRepository;
     private final ImagenProductoRepository imagenProductoRepository;
+    private final UsuarioAutenticadoService usuarioAutenticadoService;
+    private final AuditoriaService auditoriaService;
 
     public AgregarProductoCarritoService(CarritoRepository carritoRepository,
                                          CarritoProductoRepository carritoProductoRepository,
                                          ProductoRepository productoRepository,
                                          UsuarioRepository usuarioRepository,
-                                         ImagenProductoRepository imagenProductoRepository) {
+                                         ImagenProductoRepository imagenProductoRepository,
+                                         UsuarioAutenticadoService usuarioAutenticadoService,
+                                         AuditoriaService auditoriaService) {
         this.carritoRepository = carritoRepository;
         this.carritoProductoRepository = carritoProductoRepository;
         this.productoRepository = productoRepository;
         this.usuarioRepository = usuarioRepository;
         this.imagenProductoRepository = imagenProductoRepository;
+        this.usuarioAutenticadoService = usuarioAutenticadoService;
+        this.auditoriaService = auditoriaService;
     }
 
-    /**
-     * Agrega un producto al carrito.
-     * - Si idUsuario != null → carrito de usuario autenticado.
-     * - Si idUsuario == null → carrito anónimo identificado por request.getSessionId().
-     */
     @Override
     public CarritoResponse execute(Long idUsuario, AgregarProductoCarritoRequest request) {
         Producto producto = productoRepository.findById(request.getIdProducto())
@@ -61,10 +66,8 @@ public class AgregarProductoCarritoService implements AgregarProductoCarritoUseC
             throw new BusinessException("Stock insuficiente. Disponible: " + producto.getStock());
         }
 
-        // Resolver carrito
         Carrito carrito = resolverCarrito(idUsuario, request.getSessionId());
 
-        // Si ya existe el producto en el carrito, sumar cantidad
         Optional<CarritoProducto> existente = carritoProductoRepository
                 .findByCarritoId(carrito.getIdCarrito())
                 .stream()
@@ -94,13 +97,23 @@ public class AgregarProductoCarritoService implements AgregarProductoCarritoUseC
             carritoProductoRepository.save(nuevo);
         }
 
+        Usuario usuario = usuarioAutenticadoService.obtenerUsuario();
+        try {
+            auditoriaService.registrar(
+                    usuario,
+                    AccionAuditoria.CREATE,
+                    "carrito_producto",
+                    carrito.getIdCarrito(),
+                    null,
+                    "Producto: " + producto.getNombre() + " | Cantidad: " + request.getCantidad()
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         return buildResponse(carrito);
     }
 
-    /**
-     * Obtiene el carrito existente o crea uno nuevo según el contexto:
-     * autenticado (idUsuario) o anónimo (sessionId).
-     */
     private Carrito resolverCarrito(Long idUsuario, String sessionId) {
         if (idUsuario != null) {
             return carritoRepository.findByUsuarioId(idUsuario)
@@ -125,7 +138,6 @@ public class AgregarProductoCarritoService implements AgregarProductoCarritoUseC
                 )));
     }
 
-    /** Construye el CarritoResponse con todos los items actuales */
     CarritoResponse buildResponse(Carrito carrito) {
         List<CarritoProducto> items = carritoProductoRepository.findByCarritoId(carrito.getIdCarrito());
         List<CarritoProductoResponse> itemsResponse = new ArrayList<>();
@@ -148,7 +160,9 @@ public class AgregarProductoCarritoService implements AgregarProductoCarritoUseC
                     new com.example.bakend_vape.marca.application.dto.MarcaResponse(
                             p.getMarca().getId_marca(), p.getMarca().getNombre(),
                             p.getMarca().getCreated_at(), p.getMarca().getUpdated_at()),
-                    imagenes, p.getCreatedAt(), p.getUpdatedAt()
+                    imagenes,
+                    new ArrayList<>(),  // ← atributos vacío
+                    p.getCreatedAt(), p.getUpdatedAt()
             );
 
             itemsResponse.add(new CarritoProductoResponse(

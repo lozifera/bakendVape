@@ -39,4 +39,11 @@ public class SubastaRepositoryAdapter implements SubastaRepository {
     public List<Subasta> findAll() {
         return jpa.findAll().stream().map(mapper :: toDomain).toList();
     }
+
+    @Override
+    public List<Subasta> findExpiredActive() {
+        return jpa.findExpiredActiveSubastas().stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
 }

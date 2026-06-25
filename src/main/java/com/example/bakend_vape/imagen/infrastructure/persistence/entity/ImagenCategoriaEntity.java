@@ -21,6 +21,7 @@ public class ImagenCategoriaEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_imagen_categoria")
     private Long IdImagenCategoria;
 
     @ManyToOne(fetch = FetchType.LAZY)

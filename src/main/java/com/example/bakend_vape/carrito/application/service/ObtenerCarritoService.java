@@ -39,7 +39,6 @@ public class ObtenerCarritoService implements ObtenerCarritoUseCase {
         this.imagenProductoRepository = imagenProductoRepository;
     }
 
-    /** Obtiene o crea el carrito de un usuario autenticado */
     @Override
     public CarritoResponse execute(Long idUsuario) {
         var usuario = usuarioRepository.findById(idUsuario)
@@ -53,7 +52,6 @@ public class ObtenerCarritoService implements ObtenerCarritoUseCase {
         return buildResponse(carrito);
     }
 
-    /** Obtiene o crea el carrito de un visitante anónimo por sessionId */
     public CarritoResponse executeBySession(String sessionId) {
         Carrito carrito = carritoRepository.findBySessionId(sessionId)
                 .orElseGet(() -> carritoRepository.save(new Carrito(
@@ -85,7 +83,9 @@ public class ObtenerCarritoService implements ObtenerCarritoUseCase {
                     new com.example.bakend_vape.marca.application.dto.MarcaResponse(
                             p.getMarca().getId_marca(), p.getMarca().getNombre(),
                             p.getMarca().getCreated_at(), p.getMarca().getUpdated_at()),
-                    imagenes, p.getCreatedAt(), p.getUpdatedAt()
+                    imagenes,
+                    new ArrayList<>(),  // ← atributos vacío
+                    p.getCreatedAt(), p.getUpdatedAt()
             );
 
             itemsResponse.add(new CarritoProductoResponse(

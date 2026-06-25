@@ -1,5 +1,7 @@
 package com.example.bakend_vape.carrito.application.service;
 
+import com.example.bakend_vape.auditoria.application.service.AuditoriaService;
+import com.example.bakend_vape.auditoria.domain.model.AccionAuditoria;
 import com.example.bakend_vape.carrito.application.dto.ActualizarCantidadRequest;
 import com.example.bakend_vape.carrito.application.dto.CarritoResponse;
 import com.example.bakend_vape.carrito.application.usecase.ActualizarCantidadCarritoUseCase;
@@ -10,6 +12,8 @@ import com.example.bakend_vape.carrito.domain.repository.CarritoRepository;
 import com.example.bakend_vape.shared.domain.exception.BusinessException;
 import com.example.bakend_vape.shared.domain.exception.NotFoundException;
 import com.example.bakend_vape.shared.domain.valueObject.Money;
+import com.example.bakend_vape.shared.security.UsuarioAutenticadoService;
+import com.example.bakend_vape.usuario.domain.model.Usuario;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -21,13 +25,19 @@ public class ActualizarCantidadCarritoService implements ActualizarCantidadCarri
     private final CarritoRepository carritoRepository;
     private final CarritoProductoRepository carritoProductoRepository;
     private final AgregarProductoCarritoService helper;
+    private final UsuarioAutenticadoService usuarioAutenticadoService;
+    private final AuditoriaService auditoriaService;
 
     public ActualizarCantidadCarritoService(CarritoRepository carritoRepository,
                                             CarritoProductoRepository carritoProductoRepository,
-                                            AgregarProductoCarritoService helper) {
+                                            AgregarProductoCarritoService helper,
+                                            UsuarioAutenticadoService usuarioAutenticadoService,
+                                            AuditoriaService auditoriaService) {
         this.carritoRepository = carritoRepository;
         this.carritoProductoRepository = carritoProductoRepository;
         this.helper = helper;
+        this.usuarioAutenticadoService = usuarioAutenticadoService;
+        this.auditoriaService = auditoriaService;
     }
 
     @Override
@@ -56,6 +66,20 @@ public class ActualizarCantidadCarritoService implements ActualizarCantidadCarri
         cp.setSubtotal(new Money(precio.multiply(BigDecimal.valueOf(request.getCantidad()))));
         cp.setUpdatedAt(LocalDateTime.now());
         carritoProductoRepository.save(cp);
+
+        Usuario usuario = usuarioAutenticadoService.obtenerUsuario();
+        try {
+            auditoriaService.registrar(
+                    usuario,
+                    AccionAuditoria.UPDATE,
+                    "carrito_producto",
+                    idCarritoProducto,
+                    "cantidad anterior",
+                    "Nueva cantidad: " + request.getCantidad()
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return helper.buildResponse(carrito);
     }

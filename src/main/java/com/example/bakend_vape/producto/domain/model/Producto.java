@@ -23,7 +23,7 @@ public class Producto {
     private String descripcion;
     private BigDecimal precio;
     private Integer stock;
-    private Integer stockMinimo;
+    private Integer stockMinimo = 0 ;
     private Categoria categoria;
     private Marca marca;
     private LocalDateTime createdAt;

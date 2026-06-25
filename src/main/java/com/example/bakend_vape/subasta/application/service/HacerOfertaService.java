@@ -1,8 +1,11 @@
 package com.example.bakend_vape.subasta.application.service;
 
+import com.example.bakend_vape.auditoria.application.service.AuditoriaService;
+import com.example.bakend_vape.auditoria.domain.model.AccionAuditoria;
 import com.example.bakend_vape.shared.domain.exception.BusinessException;
 import com.example.bakend_vape.shared.domain.exception.NotFoundException;
 import com.example.bakend_vape.shared.domain.valueObject.Money;
+import com.example.bakend_vape.shared.security.UsuarioAutenticadoService;
 import com.example.bakend_vape.subasta.application.dto.HacerOfertaRequest;
 import com.example.bakend_vape.subasta.application.dto.OfertaSubastaResponse;
 import com.example.bakend_vape.subasta.application.usecase.HacerOfertaUseCase;
@@ -28,15 +31,21 @@ public class HacerOfertaService implements HacerOfertaUseCase {
     private final OfertaSubastaRepository ofertaSubastaRepository;
     private final UsuarioRepository usuarioRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final UsuarioAutenticadoService usuarioAutenticadoService;
+    private final AuditoriaService auditoriaService;
 
     public HacerOfertaService(SubastaRepository subastaRepository,
                               OfertaSubastaRepository ofertaSubastaRepository,
                               UsuarioRepository usuarioRepository,
-                              SimpMessagingTemplate messagingTemplate) {
+                              SimpMessagingTemplate messagingTemplate,
+                              UsuarioAutenticadoService usuarioAutenticadoService,
+                              AuditoriaService auditoriaService) {
         this.subastaRepository = subastaRepository;
         this.ofertaSubastaRepository = ofertaSubastaRepository;
         this.usuarioRepository = usuarioRepository;
         this.messagingTemplate = messagingTemplate;
+        this.usuarioAutenticadoService = usuarioAutenticadoService;
+        this.auditoriaService = auditoriaService;
     }
 
     @Override
@@ -83,6 +92,20 @@ public class HacerOfertaService implements HacerOfertaUseCase {
                 guardada.getMonto().value(),
                 guardada.getCreatedAt()
         );
+
+        Usuario usuarioAuditoria = usuarioAutenticadoService.obtenerUsuario();
+        try {
+            auditoriaService.registrar(
+                    usuarioAuditoria,
+                    AccionAuditoria.CREATE,
+                    "oferta_subasta",
+                    guardada.getIdOfertaSubasta(),
+                    null,
+                    "Subasta: " + subasta.getTitulo() + " | Monto: " + request.getMonto()
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         // Emitir en tiempo real a todos los participantes suscritos a esta subasta
         messagingTemplate.convertAndSend("/topic/subastas/" + idSubasta, respuesta);

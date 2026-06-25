@@ -20,6 +20,7 @@ public class PedidoProductoEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_pedido_producto")
     private Long idPedidoProducto;
 
     @ManyToOne

@@ -10,5 +10,6 @@ public enum AccionAuditoria {
     DOWNLOAD,
     UPLOAD,
     ERROR,
+    AUTO,
     OTHER
 }

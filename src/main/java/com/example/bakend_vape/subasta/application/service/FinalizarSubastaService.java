@@ -1,7 +1,10 @@
 package com.example.bakend_vape.subasta.application.service;
 
+import com.example.bakend_vape.auditoria.application.service.AuditoriaService;
+import com.example.bakend_vape.auditoria.domain.model.AccionAuditoria;
 import com.example.bakend_vape.shared.domain.exception.BusinessException;
 import com.example.bakend_vape.shared.domain.exception.NotFoundException;
+import com.example.bakend_vape.shared.security.UsuarioAutenticadoService;
 import com.example.bakend_vape.subasta.application.dto.GanadorSubastaResponse;
 import com.example.bakend_vape.subasta.application.usecase.FinalizarSubastaUseCase;
 import com.example.bakend_vape.subasta.domain.model.EstadoSubasta;
@@ -9,6 +12,7 @@ import com.example.bakend_vape.subasta.domain.model.OfertaSubasta;
 import com.example.bakend_vape.subasta.domain.model.Subasta;
 import com.example.bakend_vape.subasta.domain.repository.OfertaSubastaRepository;
 import com.example.bakend_vape.subasta.domain.repository.SubastaRepository;
+import com.example.bakend_vape.usuario.domain.model.Usuario;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
@@ -22,13 +26,19 @@ public class FinalizarSubastaService implements FinalizarSubastaUseCase {
     private final SubastaRepository subastaRepository;
     private final OfertaSubastaRepository ofertaSubastaRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final UsuarioAutenticadoService usuarioAutenticadoService;
+    private final AuditoriaService auditoriaService;
 
     public FinalizarSubastaService(SubastaRepository subastaRepository,
                                    OfertaSubastaRepository ofertaSubastaRepository,
-                                   SimpMessagingTemplate messagingTemplate) {
+                                   SimpMessagingTemplate messagingTemplate,
+                                   UsuarioAutenticadoService usuarioAutenticadoService,
+                                   AuditoriaService auditoriaService) {
         this.subastaRepository = subastaRepository;
         this.ofertaSubastaRepository = ofertaSubastaRepository;
         this.messagingTemplate = messagingTemplate;
+        this.usuarioAutenticadoService = usuarioAutenticadoService;
+        this.auditoriaService = auditoriaService;
     }
 
     @Override
@@ -40,9 +50,25 @@ public class FinalizarSubastaService implements FinalizarSubastaUseCase {
             throw new BusinessException("La subasta ya fue finalizada o está en otro estado");
         }
 
+        String valorAnterior = subasta.getEstado().name();
+
         // Cambiar estado a FINALIZADA
         subasta.setEstado(EstadoSubasta.FINALIZADA);
         subastaRepository.save(subasta);
+
+        Usuario usuario = usuarioAutenticadoService.obtenerUsuario();
+        try {
+            auditoriaService.registrar(
+                    usuario,
+                    AccionAuditoria.UPDATE,
+                    "subasta",
+                    idSubasta,
+                    valorAnterior,
+                    EstadoSubasta.FINALIZADA.name()
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         // Determinar ganador: mayor oferta
         List<OfertaSubasta> ofertas = ofertaSubastaRepository.findBySubastaId(idSubasta);

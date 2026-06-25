@@ -6,6 +6,8 @@ import com.example.bakend_vape.producto.domain.model.Producto;
 import com.example.bakend_vape.producto.infrastructure.persistence.entity.ProductoEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
+
 @Component
 public class ProductoMapper {
 
@@ -42,7 +44,7 @@ public class ProductoMapper {
         entity.setDescripcion(producto.getDescripcion());
         entity.setPrecio(producto.getPrecio());
         entity.setStock(producto.getStock());
-        entity.setStockMinimo(producto.getStockMinimo());
+        entity.setStockMinimo(Objects.requireNonNullElse(producto.getStockMinimo(), 0));
         entity.setCategoria(categoriaMapper.toEntity(producto.getCategoria()));
         entity.setMarca(marcaMapper.toEntity(producto.getMarca()));
         return entity;

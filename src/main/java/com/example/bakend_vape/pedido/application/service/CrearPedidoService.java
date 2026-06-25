@@ -1,12 +1,18 @@
 package com.example.bakend_vape.pedido.application.service;
 
+import com.example.bakend_vape.auditoria.application.service.AuditoriaService;
+import com.example.bakend_vape.auditoria.domain.model.AccionAuditoria;
 import com.example.bakend_vape.carrito.domain.repository.CarritoProductoRepository;
 import com.example.bakend_vape.carrito.domain.repository.CarritoRepository;
+import com.example.bakend_vape.direccion.domain.model.Direccion;
+import com.example.bakend_vape.direccion.domain.repository.DireccionRepository;
 import com.example.bakend_vape.pedido.application.dto.CrearPedidoRequest;
+import com.example.bakend_vape.pedido.domain.event.PedidoCreadoEvent;
 import com.example.bakend_vape.pedido.application.dto.PedidoProductoRequest;
 import com.example.bakend_vape.pedido.application.dto.PedidoProductoResponse;
 import com.example.bakend_vape.pedido.application.dto.PedidoResponse;
 import com.example.bakend_vape.pedido.application.usecase.CrearPedidoUseCase;
+import com.example.bakend_vape.pedido.domain.model.EstadoPedido;
 import com.example.bakend_vape.pedido.domain.model.Pedido;
 import com.example.bakend_vape.pedido.domain.model.PedidoProducto;
 import com.example.bakend_vape.pedido.domain.repository.PedidoProductoRepository;
@@ -20,8 +26,10 @@ import com.example.bakend_vape.shared.domain.exception.BusinessException;
 import com.example.bakend_vape.shared.domain.exception.NotFoundException;
 import com.example.bakend_vape.shared.domain.valueObject.Money;
 import com.example.bakend_vape.shared.domain.valueObject.Puntos;
+import com.example.bakend_vape.shared.security.UsuarioAutenticadoService;
 import com.example.bakend_vape.usuario.domain.model.Usuario;
 import com.example.bakend_vape.usuario.domain.repository.UsuarioRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,24 +46,36 @@ public class CrearPedidoService implements CrearPedidoUseCase {
     private final PedidoProductoRepository pedidoProductoRepository;
     private final ProductoRepository productoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final DireccionRepository direccionRepository;
     private final MovimientoPuntosRepository movimientoPuntosRepository;
     private final CarritoRepository carritoRepository;
     private final CarritoProductoRepository carritoProductoRepository;
+    private final UsuarioAutenticadoService usuarioAutenticadoService;
+    private final AuditoriaService auditoriaService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public CrearPedidoService(PedidoRepository pedidoRepository,
                               PedidoProductoRepository pedidoProductoRepository,
                               ProductoRepository productoRepository,
                               UsuarioRepository usuarioRepository,
+                              DireccionRepository direccionRepository,
                               MovimientoPuntosRepository movimientoPuntosRepository,
                               CarritoRepository carritoRepository,
-                              CarritoProductoRepository carritoProductoRepository) {
+                              CarritoProductoRepository carritoProductoRepository,
+                              UsuarioAutenticadoService usuarioAutenticadoService,
+                              AuditoriaService auditoriaService,
+                              ApplicationEventPublisher eventPublisher) {
         this.pedidoRepository = pedidoRepository;
         this.pedidoProductoRepository = pedidoProductoRepository;
         this.productoRepository = productoRepository;
         this.usuarioRepository = usuarioRepository;
+        this.direccionRepository = direccionRepository;
         this.movimientoPuntosRepository = movimientoPuntosRepository;
         this.carritoRepository = carritoRepository;
         this.carritoProductoRepository = carritoProductoRepository;
+        this.usuarioAutenticadoService = usuarioAutenticadoService;
+        this.auditoriaService = auditoriaService;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -64,6 +84,17 @@ public class CrearPedidoService implements CrearPedidoUseCase {
         // 1. Validar usuario
         Usuario usuario = usuarioRepository.findById(request.getIdUsuario())
                 .orElseThrow(() -> new NotFoundException("Usuario no encontrado"));
+
+        // 1b. Si se envía id_direccion, obtener datos desde la tabla direccion
+        String direccionEnvio = request.getDireccionEnvio();
+        String referenciaEnvio = request.getReferenciaEnvio();
+
+        if (request.getIdDireccion() != null) {
+            Direccion dir = direccionRepository.findById(request.getIdDireccion())
+                    .orElseThrow(() -> new NotFoundException("Dirección no encontrada"));
+            direccionEnvio = dir.getDireccion();
+            referenciaEnvio = dir.getReferencia();
+        }
 
         if (request.getProductos() == null || request.getProductos().isEmpty()) {
             throw new BusinessException("El pedido debe contener al menos un producto");
@@ -85,9 +116,24 @@ public class CrearPedidoService implements CrearPedidoUseCase {
             productosValidados.add(producto);
         }
 
+        // 2b. Aplicar descuento por canje de puntos (1 punto = Bs. 1)
+        Integer puntosUsados = request.getPuntosUsados();
+        if (puntosUsados != null && puntosUsados > 0) {
+            if (puntosUsados > usuario.getPuntos_actuales()) {
+                throw new BusinessException("Puntos insuficientes. Disponibles: " + usuario.getPuntos_actuales());
+            }
+            BigDecimal descuento = BigDecimal.valueOf(puntosUsados).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_DOWN);
+            total = total.subtract(descuento);
+            if (total.compareTo(BigDecimal.ZERO) < 0) {
+                total = BigDecimal.ZERO;
+            }
+        }
+
         // 3. Registrar pedido
         Pedido pedido = new Pedido(null, usuario, new Money(total),
-                LocalDateTime.now(), true, LocalDateTime.now(), LocalDateTime.now());
+                LocalDateTime.now(), EstadoPedido.PENDIENTE,
+                direccionEnvio, referenciaEnvio,
+                LocalDateTime.now(), LocalDateTime.now());
         Pedido pedidoGuardado = pedidoRepository.save(pedido);
 
         // 4. Registrar productos del pedido y descontar stock
@@ -122,18 +168,32 @@ public class CrearPedidoService implements CrearPedidoUseCase {
             ));
         }
 
-        // 5. Generar puntos (1 punto por cada 10 unidades monetarias del total)
+        // 5. Generar puntos por compra y registrar canje de puntos
         int puntosGanados = total.divide(BigDecimal.TEN, 0, RoundingMode.DOWN).intValue();
-        if (puntosGanados > 0) {
+        boolean hayPuntosGanados = puntosGanados > 0;
+        boolean hayCanje = puntosUsados != null && puntosUsados > 0;
+
+        if (hayPuntosGanados) {
             MovimientoPuntos movimiento = new MovimientoPuntos(
                     null, usuario, new Puntos(puntosGanados),
                     MotivoMovimiento.COMPRA, pedidoGuardado.getIdPedido(),
                     LocalDateTime.now(), LocalDateTime.now()
             );
             movimientoPuntosRepository.save(movimiento);
-
-            // Actualizar puntos del usuario
             usuario.setPuntos_actuales(usuario.getPuntos_actuales() + puntosGanados);
+        }
+
+        if (hayCanje) {
+            MovimientoPuntos canje = new MovimientoPuntos(
+                    null, usuario, new Puntos(puntosUsados),
+                    MotivoMovimiento.CANJE, pedidoGuardado.getIdPedido(),
+                    LocalDateTime.now(), LocalDateTime.now()
+            );
+            movimientoPuntosRepository.save(canje);
+            usuario.setPuntos_actuales(usuario.getPuntos_actuales() - puntosUsados);
+        }
+
+        if (hayPuntosGanados || hayCanje) {
             usuarioRepository.save(usuario);
         }
 
@@ -142,12 +202,30 @@ public class CrearPedidoService implements CrearPedidoUseCase {
                 carritoProductoRepository.deleteByCarritoId(carrito.getIdCarrito())
         );
 
+        Usuario usuarioAuditoria = usuarioAutenticadoService.obtenerUsuario();
+        try {
+            auditoriaService.registrar(
+                    usuarioAuditoria,
+                    AccionAuditoria.CREATE,
+                    "pedido",
+                    pedidoGuardado.getIdPedido(),
+                    null,
+                    "Total: " + total + " | Productos: " + request.getProductos().size()
+            );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        eventPublisher.publishEvent(new PedidoCreadoEvent(usuario.getIdUsuario(), pedidoGuardado.getIdPedido()));
+
         return new PedidoResponse(
                 pedidoGuardado.getIdPedido(),
                 usuario.getIdUsuario(),
                 total,
                 pedidoGuardado.getFecha(),
                 pedidoGuardado.getEstado(),
+                pedidoGuardado.getDireccionEnvio(),
+                pedidoGuardado.getReferenciaEnvio(),
                 itemsResponse,
                 pedidoGuardado.getCreatedAt()
         );
